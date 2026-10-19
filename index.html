@@ -1,0 +1,1740 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>La Casa del Código · El expediente del silencio</title>
+
+<style>
+:root{
+  --paper:#efe5ca;
+  --ink:#30271e;
+  --wine:#702c32;
+  --gold:#d2b078;
+  --night:#111c26;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:#101923;
+  color:var(--paper);
+  font-family:Georgia,serif;
+  font-size:17px;
+  line-height:1.55;
+}
+
+button,input{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible{
+  outline:3px solid #ffe19b;
+  outline-offset:4px;
+}
+
+a{
+  color:inherit;
+}
+
+.skip{
+  position:absolute;
+  left:-9999px;
+}
+
+.skip:focus{
+  left:16px;
+  top:16px;
+  z-index:99;
+  background:#111;
+  padding:12px;
+}
+
+.app{
+  max-width:1220px;
+  margin:auto;
+  padding:28px 24px;
+}
+
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  border-bottom:1px solid #9e8462;
+  padding-bottom:22px;
+}
+
+.eyebrow{
+  font:12px system-ui;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--gold);
+}
+
+h1{
+  font-size:clamp(28px,4vw,46px);
+  line-height:1.1;
+  margin:10px 0;
+}
+
+h2{
+  font-size:23px;
+  margin:0 0 12px;
+}
+
+p{
+  margin:12px 0;
+}
+
+.toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.toolbar button,
+.button{
+  background:#283945;
+  border:1px solid #9c855e;
+  color:var(--paper);
+  padding:9px 13px;
+  border-radius:5px;
+}
+
+.button.primary{
+  background:var(--wine);
+}
+
+.intro{
+  max-width:890px;
+  color:#c9c8c0;
+  font-size:16px;
+}
+
+.layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 310px;
+  gap:22px;
+  align-items:start;
+}
+
+.stage{
+  border:1px solid #766449;
+  border-radius:12px;
+  overflow:hidden;
+  background:#17232d;
+}
+
+.scene{
+  position:relative;
+  aspect-ratio:900/590;
+  background:#132331;
+  isolation:isolate;
+}
+
+.scene svg{
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+.scene button.object{
+  position:absolute;
+  background:transparent;
+  border:0;
+  padding:0;
+  color:transparent;
+  min-width:36px;
+  min-height:36px;
+  border-radius:8px;
+  z-index:3;
+}
+
+.scene button.object:hover,
+.scene button.object:focus-visible{
+  background:#ffdd8b18;
+  box-shadow:0 0 24px #d0ac5655;
+}
+
+.scene button.object:focus-visible{
+  outline:2px solid #ffe4a3;
+}
+
+.scene.show-objects button.object{
+  outline:1px dashed #dcc290;
+}
+
+.object .label{
+  opacity:0;
+  position:absolute;
+  bottom:100%;
+  left:50%;
+  transform:translateX(-50%);
+  background:#0b121c;
+  padding:5px 9px;
+  white-space:nowrap;
+  color:#ffedc5;
+  font:13px system-ui;
+  border-radius:4px;
+  pointer-events:none;
+}
+
+.object:hover .label,
+.object:focus-visible .label,
+.show-objects .label{
+  opacity:1;
+}
+
+.object.found:after{
+  content:"✓";
+  position:absolute;
+  right:0;
+  bottom:0;
+  color:#acd7b4;
+  font:bold 20px system-ui;
+  text-shadow:0 0 5px #000;
+}
+
+.fog{
+  position:absolute;
+  inset:55% -10% 9%;
+  background:
+    radial-gradient(ellipse at 30% 80%,#b4bdc238,transparent 50%),
+    radial-gradient(ellipse at 75% 60%,#b4bdc227,transparent 45%);
+  filter:blur(12px);
+  animation:fog 13s ease-in-out infinite alternate;
+  pointer-events:none;
+  z-index:2;
+}
+
+@keyframes fog{
+  to{
+    transform:translateX(8%);
+  }
+}
+
+.door-leaf{
+  transform-box:fill-box;
+  transform-origin:left center;
+  transition:transform 1.6s ease;
+}
+
+.scene.open .door-leaf{
+  transform:skewY(-9deg) scaleX(.15);
+}
+
+.scene.open #inside-light{
+  opacity:1;
+}
+
+.scene.paused .fog{
+  animation-play-state:paused;
+}
+
+#inside-light{
+  opacity:0;
+  transition:opacity 1.3s;
+}
+
+.caption{
+  padding:16px 20px;
+  border-top:1px solid #5c5849;
+  font-size:15px;
+}
+
+.caption strong{
+  color:#eac88b;
+}
+
+aside{
+  background:var(--paper);
+  color:var(--ink);
+  border-radius:10px;
+  padding:23px;
+  box-shadow:0 12px 30px #0004;
+}
+
+aside .eyebrow{
+  color:#79552d;
+}
+
+.progress{
+  height:5px;
+  background:#c9bda0;
+  margin:18px 0;
+}
+
+.progress span{
+  display:block;
+  height:100%;
+  width:0;
+  background:var(--wine);
+  transition:width .4s;
+}
+
+#digits{
+  display:flex;
+  gap:8px;
+  margin:16px 0;
+}
+
+.digit{
+  display:grid;
+  place-items:center;
+  width:42px;
+  height:48px;
+  border:1px solid #927b57;
+  background:#faf2df;
+  font-size:25px;
+}
+
+.journal{
+  padding-left:22px;
+  font-size:15px;
+}
+
+.journal li{
+  margin:12px 0;
+}
+
+.journal button{
+  border:0;
+  background:none;
+  color:var(--wine);
+  padding:0;
+  text-decoration:underline;
+  text-align:left;
+}
+
+.journal .pending{
+  color:#827361;
+}
+
+#message{
+  min-height:55px;
+  font-size:14px;
+  border-top:1px solid #c6b48c;
+  padding-top:15px;
+}
+
+.footnote{
+  font:13px/1.6 system-ui;
+  color:#adb6b9;
+  margin-top:22px;
+  max-width:960px;
+}
+
+dialog{
+  border:1px solid #a18559;
+  border-radius:10px;
+  background:var(--paper);
+  color:var(--ink);
+  width:min(640px,calc(100% - 28px));
+  max-height:88vh;
+  padding:26px;
+  box-shadow:0 20px 100px #000b;
+}
+
+dialog::backdrop{
+  background:#070d16d9;
+  backdrop-filter:blur(3px);
+}
+
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:start;
+}
+
+.close{
+  background:none;
+  border:0;
+  color:var(--ink);
+  font:26px system-ui;
+  padding:0 5px;
+}
+
+.evidence{
+  background:#f8f0dc;
+  border-left:3px solid #ae8650;
+  padding:15px;
+  font-style:italic;
+}
+
+.options{
+  display:grid;
+  gap:10px;
+  margin:18px 0;
+}
+
+.options button{
+  border:1px solid #b19a72;
+  background:#fff8e8;
+  color:#342719;
+  text-align:left;
+  border-radius:5px;
+  padding:12px 15px;
+}
+
+.options button:hover{
+  background:#e5d2aa;
+}
+
+.options button:disabled{
+  cursor:default;
+  opacity:.65;
+}
+
+.options button.correct{
+  background:#d1e0c8;
+  border-color:#477049;
+  opacity:1;
+}
+
+.feedback{
+  min-height:40px;
+  padding:10px 0;
+  font-size:15px;
+}
+
+.feedback.error{
+  color:#8a2128;
+}
+
+.feedback.success{
+  color:#315638;
+}
+
+dialog .button{
+  background:#5e4435;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  border:1px solid #93794d;
+  background:#fffaf0;
+  border-radius:5px;
+  color:#30271e;
+  font:28px monospace;
+  letter-spacing:.3em;
+  margin:10px 0;
+}
+
+.case-summary{
+  border-top:1px solid #ad9267;
+  margin-top:20px;
+  padding-top:18px;
+}
+
+.case-summary li{
+  margin:10px 0;
+}
+
+.tag{
+  font:12px system-ui;
+  color:#785a35;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+#hintText{
+  font-size:15px;
+  margin:10px 0;
+}
+
+.final-banner{
+  display:none;
+  background:#d6be87;
+  color:#241c11;
+  padding:20px;
+  margin-top:20px;
+  border-radius:8px;
+}
+
+.final-banner.visible{
+  display:block;
+}
+
+@media(max-width:900px){
+  .layout{
+    grid-template-columns:1fr;
+  }
+
+  aside{
+    padding:20px;
+  }
+
+  .app{
+    padding:18px 14px;
+  }
+
+  header{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .scene{
+    min-height:320px;
+    aspect-ratio:900/590;
+  }
+
+  .journal{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:0 25px;
+  }
+
+  .object .label{
+    font-size:11px;
+  }
+
+  .scene button.object{
+    min-width:30px;
+    min-height:30px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,
+  *:before,
+  *:after{
+    animation:none!important;
+    transition:none!important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<a class="skip" href="#investigation">
+  Saltar al entorno de investigación
+</a>
+
+<main class="app">
+
+<header>
+  <div>
+    <div class="eyebrow">Elaborado por el Mtro. Eduardo Sánchez Ayala</div>
+    <div class="eyebrow">Maestro en Tecnologías para el Aprendizaje</div>
+    <h1>La Casa del Código</h1>
+    <div>El expediente del silencio</div>
+  </div>
+
+  <div class="toolbar">
+    <button id="pause" aria-pressed="false">Pausar niebla</button>
+    <button id="accessible" aria-pressed="false">Mostrar objetos</button>
+    <button id="reset">Reiniciar</button>
+  </div>
+</header>
+
+<p class="intro">
+  Una carta sin remitente te ha traído hasta esta calle. Cinco indicios
+  forman una cadena. Examina el entorno, interpreta cada documento y
+  reúne las cifras que abrirán la casa. Puedes explorar con el ratón,
+  con el dedo o con Tab y Enter.
+</p>
+
+<div class="layout" id="investigation">
+
+<section class="stage" aria-label="Calle victoriana con objetos investigables">
+
+<div class="scene" id="scene">
+
+<svg viewBox="0 0 900 590" preserveAspectRatio="none" aria-hidden="true">
+  <defs>
+
+    <linearGradient id="sky" x2="0" y2="1">
+      <stop stop-color="#122334"/>
+      <stop offset="1" stop-color="#374451"/>
+    </linearGradient>
+
+    <linearGradient id="wall" x2="1" y2="1">
+      <stop stop-color="#52606a"/>
+      <stop offset="1" stop-color="#202935"/>
+    </linearGradient>
+
+    <radialGradient id="lampglow">
+      <stop stop-color="#ffe4a9" stop-opacity=".5"/>
+      <stop offset="1" stop-color="#f4d7a0" stop-opacity="0"/>
+    </radialGradient>
+
+    <pattern id="brick" width="60" height="28" patternUnits="userSpaceOnUse">
+      <path
+        d="M0 0H60M0 28H60M30 0V14M0 14H60M0 14V28M60 14V28"
+        fill="none"
+        stroke="#9a9e9e"
+        stroke-opacity=".15"
+      />
+    </pattern>
+
+    <pattern id="paving" width="80" height="32" patternUnits="userSpaceOnUse">
+      <path
+        d="M0 0H80M0 32H80M40 0V16M0 16H80M0 16V32"
+        fill="none"
+        stroke="#ad9c81"
+        stroke-opacity=".2"
+      />
+    </pattern>
+
+  </defs>
+
+  <rect width="900" height="590" fill="url(#sky)"/>
+
+  <circle cx="730" cy="77" r="29" fill="#dcd9bd"/>
+  <circle cx="717" cy="67" r="27" fill="#203243"/>
+
+  <path
+    d="M0 210V165H50V110H115V190H165V145H220V205H290V105H340V80H395V185H455V155H495V260H0Z"
+    fill="#13212e"
+  />
+
+  <rect y="420" width="900" height="170" fill="#24282c"/>
+  <path d="M0 474H900V590H0Z" fill="url(#paving)"/>
+
+  <rect
+    x="490"
+    y="120"
+    width="350"
+    height="330"
+    fill="url(#wall)"
+    stroke="#121920"
+    stroke-width="10"
+  />
+
+  <rect
+    x="490"
+    y="120"
+    width="350"
+    height="330"
+    fill="url(#brick)"
+  />
+
+  <path
+    d="M465 120L665 51L858 120Z"
+    fill="#141d28"
+    stroke="#68727b"
+    stroke-width="5"
+  />
+
+  <rect
+    x="525"
+    y="163"
+    width="83"
+    height="116"
+    fill="#e0c186"
+    stroke="#14202a"
+    stroke-width="9"
+  />
+
+  <path
+    d="M566 165V277M525 220H608"
+    stroke="#303943"
+    stroke-width="8"
+  />
+
+  <path
+    d="M529 171Q560 230 529 270M603 171Q573 230 603 270"
+    fill="#6c3b3b"
+  />
+
+  <rect
+    x="721"
+    y="163"
+    width="83"
+    height="116"
+    fill="#b2996c"
+    stroke="#14202a"
+    stroke-width="9"
+  />
+
+  <path
+    d="M762 165V277M721 220H804"
+    stroke="#303943"
+    stroke-width="8"
+  />
+
+  <rect
+    x="620"
+    y="304"
+    width="93"
+    height="146"
+    fill="#070f18"
+  />
+
+  <rect
+    id="inside-light"
+    x="620"
+    y="304"
+    width="93"
+    height="146"
+    fill="#f8d89a"
+  />
+
+  <g class="door-leaf">
+    <rect
+      x="620"
+      y="304"
+      width="93"
+      height="146"
+      fill="#573b30"
+      stroke="#aa8455"
+      stroke-width="3"
+    />
+
+    <rect
+      x="633"
+      y="319"
+      width="67"
+      height="49"
+      fill="none"
+      stroke="#a2784c"
+    />
+
+    <rect
+      x="633"
+      y="381"
+      width="67"
+      height="53"
+      fill="none"
+      stroke="#a2784c"
+    />
+
+    <circle cx="697" cy="378" r="5" fill="#d3af64"/>
+  </g>
+
+  <rect
+    x="626"
+    y="284"
+    width="82"
+    height="18"
+    rx="2"
+    fill="#111a23"
+  />
+
+  <text
+    x="667"
+    y="297"
+    text-anchor="middle"
+    fill="#cab17d"
+    font-family="Georgia"
+    font-size="12"
+  >
+    CÓDIGO
+  </text>
+
+  <path
+    d="M611 453H725M600 463H736"
+    stroke="#8c8b82"
+    stroke-width="9"
+  />
+
+  <circle
+    cx="665"
+    cy="133"
+    r="21"
+    fill="#dbd0b4"
+    stroke="#202b35"
+    stroke-width="5"
+  />
+
+  <path
+    d="M665 133V119M665 133L677 140"
+    stroke="#423b31"
+    stroke-width="3"
+  />
+
+  <ellipse
+    cx="215"
+    cy="240"
+    rx="145"
+    ry="180"
+    fill="url(#lampglow)"
+  />
+
+  <path
+    d="M211 450V170M182 170H242M190 170L198 122H227L234 170Z"
+    fill="#dac087"
+    stroke="#17232b"
+    stroke-width="7"
+  />
+
+  <path d="M189 122L213 104L236 122" fill="#17232b"/>
+  <path d="M195 148H230" stroke="#dfe1bf" stroke-width="2"/>
+  <rect x="195" y="439" width="34" height="13" fill="#17232b"/>
+
+  <g stroke="#161e26" stroke-width="8">
+    <path d="M291 410H431M291 426H431M302 410V460M420 410V460"/>
+    <path d="M299 366V408M420 366V408"/>
+  </g>
+
+  <path d="M293 375H426M293 392H426" stroke="#8e7454" stroke-width="11"/>
+
+  <rect
+    x="341"
+    y="410"
+    width="43"
+    height="10"
+    fill="#c8b388"
+    transform="rotate(-5 341 410)"
+  />
+
+  <g id="detective">
+    <ellipse cx="110" cy="485" rx="36" ry="9" fill="#090f15" opacity=".6"/>
+    <path d="M96 432L90 481M114 432L126 481" stroke="#0d1621" stroke-width="16"/>
+    <path d="M90 355Q105 344 120 355L135 444H78Z" fill="#745e48"/>
+    <path d="M85 373L65 417M122 370L146 404" stroke="#745e48" stroke-width="13"/>
+    <ellipse cx="106" cy="336" rx="16" ry="22" fill="#c09870"/>
+    <path d="M84 321Q106 296 128 321Z" fill="#39342e"/>
+    <path d="M76 322H136" stroke="#39342e" stroke-width="8"/>
+
+    <rect
+      x="53"
+      y="403"
+      width="37"
+      height="27"
+      fill="#e6d3ab"
+      stroke="#86633b"
+      transform="rotate(-14 53 403)"
+    />
+
+    <path d="M53 403L74 418L90 403" fill="none" stroke="#86633b"/>
+  </g>
+
+  <g fill="#8b8578" opacity=".6">
+    <ellipse cx="155" cy="497" rx="5" ry="9" transform="rotate(35 155 497)"/>
+    <ellipse cx="172" cy="519" rx="5" ry="9" transform="rotate(35 172 519)"/>
+    <ellipse cx="192" cy="503" rx="5" ry="9" transform="rotate(35 192 503)"/>
+  </g>
+
+  <path d="M39 477Q53 451 65 477Z" fill="#694c36"/>
+  <path d="M827 452L834 420L847 452Z" fill="#3e483d"/>
+</svg>
+
+<div class="fog"></div>
+
+<button
+  class="object"
+  data-object="letter"
+  style="left:4.8%;top:67%;width:7%;height:8%"
+  aria-label="Examinar la carta de la investigadora"
+>
+  <span class="label">Carta</span>
+</button>
+
+<button
+  class="object"
+  data-object="lamp"
+  style="left:20%;top:17%;width:8%;height:14%"
+  aria-label="Examinar el farol"
+>
+  <span class="label">Farol</span>
+</button>
+
+<button
+  class="object"
+  data-object="bench"
+  style="left:33%;top:63%;width:14%;height:12%"
+  aria-label="Examinar el banco"
+>
+  <span class="label">Banco</span>
+</button>
+
+<button
+  class="object"
+  data-object="window"
+  style="left:58%;top:27%;width:10%;height:21%"
+  aria-label="Examinar la ventana iluminada"
+>
+  <span class="label">Ventana</span>
+</button>
+
+<button
+  class="object"
+  data-object="clock"
+  style="left:71%;top:18%;width:7%;height:9%"
+  aria-label="Examinar el reloj de la fachada"
+>
+  <span class="label">Reloj</span>
+</button>
+
+<button
+  class="object"
+  data-object="door"
+  style="left:68%;top:51%;width:12%;height:26%"
+  aria-label="Examinar la puerta de la Casa del Código"
+>
+  <span class="label">Puerta</span>
+</button>
+
+<button
+  class="object"
+  data-object="footprints"
+  style="left:16%;top:82%;width:8%;height:8%"
+  aria-label="Examinar las huellas"
+>
+  <span class="label">Huellas</span>
+</button>
+
+<button
+  class="object"
+  data-object="hat"
+  style="left:3%;top:76%;width:6%;height:7%"
+  aria-label="Examinar el sombrero en la calle"
+>
+  <span class="label">Sombrero</span>
+</button>
+
+</div>
+
+<div class="caption" aria-live="polite">
+  <strong>Indicio actual:</strong>
+  <span id="objective"></span>
+</div>
+
+</section>
+
+<aside>
+  <div class="eyebrow">Cuaderno de campo</div>
+
+  <h2>La cadena de indicios</h2>
+
+  <div id="count"></div>
+
+  <div
+    class="progress"
+    role="progressbar"
+    aria-label="Progreso del caso"
+    aria-valuemin="0"
+    aria-valuemax="5"
+    aria-valuenow="0"
+  >
+    <span id="bar"></span>
+  </div>
+
+  <div id="digits" aria-label="Cifras recuperadas"></div>
+
+  <ol class="journal" id="journal"></ol>
+
+  <button class="button primary" id="hint">
+    Solicitar una pista
+  </button>
+
+  <p id="hintText"></p>
+
+  <div id="message" role="status"></div>
+</aside>
+
+</div>
+
+<section id="finalBanner" class="final-banner">
+  <h2>La puerta está abierta</h2>
+  <p>Has reconstruido el expediente. La discusión filosófica sigue abierta.</p>
+
+  <button class="button" id="reopen">
+    Leer el expediente final
+  </button>
+</section>
+
+<p class="footnote">
+  Ficción didáctica inspirada en el ambiente detectivesco de Sherlock Holmes.
+  Conserva el tema del archivo original: el argumento del ocultamiento divino.
+  Los documentos, cifras y personajes son inventados; sus textos son
+  explicaciones propias, no citas de Schellenberg. La puerta representa el
+  acceso al expediente, no una prueba de la existencia o inexistencia de Dios.
+</p>
+
+</main>
+
+<dialog id="modal" aria-labelledby="modalTitle">
+  <div class="modal-head">
+    <div>
+      <div id="modalTag" class="tag"></div>
+      <h2 id="modalTitle"></h2>
+    </div>
+
+    <button
+      class="close"
+      id="closeModal"
+      aria-label="Cerrar documento"
+    >
+      ×
+    </button>
+  </div>
+
+  <div id="modalBody"></div>
+</dialog>
+
+<script>
+(() => {
+  "use strict";
+
+  const $ = id => document.getElementById(id);
+
+  const clues = [
+    {
+      object: "letter",
+      name: "La carta sincera",
+      digit: "",
+      location:
+        "La carta que sostiene la figura junto al farol es el primer documento.",
+      evidence:
+        "«No quiero evitar la pregunta. Si existe alguien que pueda responder, deseo conocerlo. Sin embargo, todavía no encuentro razones suficientes para creer».",
+      question:
+        "¿Qué describe el documento?",
+      options: [
+        "Una negativa deliberada a considerar cualquier evidencia.",
+        "Una falta de creencia compatible con una búsqueda sincera.",
+        "Una certeza de que ninguna divinidad puede existir."
+      ],
+      answer: 1,
+      explanation:
+        "La carta ilustra la incredulidad no resistente: no creer no equivale aquí a rechazar deliberadamente una relación. Es una situación ficticia; el argumento necesita establecer si existen casos reales de este tipo.",
+      next:
+        "Bajo el sello hay una cifra. «Busca a quien ilumina la calle sin obligarte a caminar».",
+      hints: [
+        "La investigación empieza con un mensaje escrito.",
+        "La figura de la calle sostiene un sobre."
+      ]
+    },
+
+    {
+      object: "lamp",
+      name: "La luz y la libertad",
+      digit: "",
+      location:
+        "«Busca a quien ilumina la calle sin obligarte a caminar».",
+      evidence:
+        "Bajo el cristal del farol aparece una nota: «Puedes ver una calle iluminada y aun así decidir no recorrerla. Reconocer una posibilidad y aceptarla son actos distintos».",
+      question:
+        "¿Qué distinción representa el farol?",
+      options: [
+        "Conocer que alguien existe no obliga por sí solo a amarlo.",
+        "Toda evidencia obliga automáticamente a obedecer.",
+        "La libertad requiere carecer siempre de información."
+      ],
+      answer: 0,
+      explanation:
+        "La nota distingue reconocimiento y respuesta afectiva. Es una objeción a la idea de que cualquier evidencia clara destruiría la libertad; no demuestra que toda forma de revelación carezca de efectos sobre ella.",
+      next:
+        "En la base hay otra cifra. «Donde dos personas podrían sentarse juntas, encontrarás el próximo testimonio».",
+      hints: [
+        "Busca una fuente de luz del entorno.",
+        "El farol está a la izquierda de la casa."
+      ]
+    },
+
+    {
+      object: "bench",
+      name: "El asiento disponible",
+      digit: "",
+      location:
+        "«Donde dos personas podrían sentarse juntas, encontrarás el próximo testimonio».",
+      evidence:
+        "Entre las tablas del banco: «Si una relación es un bien para alguien capaz y dispuesto, un amor perfecto permanecería abierto a esa relación».",
+      question:
+        "¿Qué función cumple esta afirmación?",
+      options: [
+        "Es una medición experimental de un ser divino.",
+        "Prueba que cualquier relación humana es perfecta.",
+        "Es una premisa filosófica sobre amor y apertura relacional."
+      ],
+      answer: 2,
+      explanation:
+        "Se propone una relación entre amor perfecto y apertura a una relación personal. Es una premisa discutible, no un dato que el escenario haya verificado. Resolverla significa identificar su función.",
+      next:
+        "En la madera está grabada una nueva cifra. «Acércate al cristal iluminado: una casa visible no obliga a entrar».",
+      hints: [
+        "El objeto permite compartir un lugar de descanso.",
+        "Examina el banco entre el farol y la casa."
+      ]
+    },
+
+    {
+      object: "window",
+      name: "Lo que permite reconocer",
+      digit: "",
+      location:
+        "«Acércate al cristal iluminado: una casa visible no obliga a entrar».",
+      evidence:
+        "Un papel pegado por dentro dice: «Una relación consciente exige poder reconocer al otro. La cuestión es si una persona abierta dispone de razones suficientes para creer que esa relación está disponible».",
+      question:
+        "¿Qué exige examinar esta parte del argumento?",
+      options: [
+        "Si toda persona recibe exactamente la misma experiencia.",
+        "Si hay condiciones suficientes para reconocer una relación disponible.",
+        "Si toda relación exige una aparición espectacular."
+      ],
+      answer: 1,
+      explanation:
+        "El problema se refiere a condiciones para una relación consciente, no necesariamente a fenómenos espectaculares. El carácter y la suficiencia de esas condiciones pueden discutirse.",
+      next:
+        "En el marco aparece otra cifra. «El último testigo cuenta lo que pasa durante la espera».",
+      hints: [
+        "Busca una abertura iluminada en la fachada.",
+        "Examina la ventana izquierda, sobre la puerta."
+      ]
+    },
+
+    {
+      object: "clock",
+      name: "El tiempo del silencio",
+      digit: "",
+      location:
+        "«El último testigo cuenta lo que pasa durante la espera».",
+      evidence:
+        "Detrás de la esfera del reloj: «Una persona abierta puede seguir sin creer durante una larga búsqueda. Si ese caso existe, ¿cómo encaja con las premisas de amor y apertura que hemos recogido?».",
+      question:
+        "¿Cuál es el alcance de la dificultad planteada?",
+      options: [
+        "Cuestiona conjuntamente las premisas sobre amor, relación e incredulidad no resistente.",
+        "Demuestra experimentalmente que ninguna idea posible de Dios puede ser verdadera.",
+        "Establece que toda persona que duda está mintiendo."
+      ],
+      answer: 0,
+      explanation:
+        "La tensión depende de las premisas y de la existencia de los casos descritos. No es una refutación automática de toda concepción de Dios. La investigación filosófica examina también las objeciones a esas premisas.",
+      next:
+        "Has encontrado la última cifra. «Ordena las cifras según el hallazgo y visita la puerta».",
+      hints: [
+        "Busca el objeto que mide el paso del tiempo.",
+        "El reloj está bajo el tejado, sobre la placa CÓDIGO."
+      ]
+    }
+  ];
+
+  function crearDigitosUnicos(cantidad = 5) {
+    const disponibles = [
+      "0", "1", "2", "3", "4",
+      "5", "6", "7", "8", "9"
+    ];
+
+    for (let i = disponibles.length - 1; i > 0; i--) {
+      const posicionAleatoria = Math.floor(
+        Math.random() * (i + 1)
+      );
+
+      [disponibles[i], disponibles[posicionAleatoria]] = [
+        disponibles[posicionAleatoria],
+        disponibles[i]
+      ];
+    }
+
+    return disponibles.slice(0, cantidad);
+  }
+
+  function asignarDigitosAleatorios() {
+    const digitos = crearDigitosUnicos(clues.length);
+
+    clues.forEach((clue, indice) => {
+      clue.digit = digitos[indice];
+    });
+  }
+
+  const storageKey = "casa-codigo-ocultamiento-v3";
+
+  let solved = 0;
+  let opened = false;
+  let hintLevel = 0;
+
+  let paused = matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+
+  asignarDigitosAleatorios();
+
+  try {
+    const saved = JSON.parse(
+      localStorage.getItem(storageKey)
+    );
+
+    const hayDigitosValidos =
+      Array.isArray(saved?.digits) &&
+      saved.digits.length === clues.length &&
+      saved.digits.every(digit => /^[0-9]$/.test(digit));
+
+    if (hayDigitosValidos) {
+      clues.forEach((clue, indice) => {
+        clue.digit = saved.digits[indice];
+      });
+    }
+
+    if (
+      saved &&
+      Number.isInteger(saved.solved) &&
+      saved.solved >= 0 &&
+      saved.solved <= clues.length
+    ) {
+      solved = saved.solved;
+      opened =
+        solved === clues.length &&
+        saved.opened === true;
+    }
+  } catch {}
+
+  const modal = $("modal");
+
+  function save() {
+    try {
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify({
+          solved,
+          opened,
+          digits: clues.map(clue => clue.digit)
+        })
+      );
+    } catch {}
+  }
+
+  function status(message) {
+    $("message").textContent = message;
+  }
+
+  function show(title, tag) {
+    if (modal.open) {
+      modal.close();
+    }
+
+    $("modalTitle").textContent = title;
+    $("modalTag").textContent = tag;
+    $("modalBody").replaceChildren();
+
+    modal.showModal();
+  }
+
+  function paragraph(text, className = "") {
+    const p = document.createElement("p");
+
+    p.textContent = text;
+    p.className = className;
+
+    return p;
+  }
+
+  function render() {
+    $("count").textContent =
+      `${solved} de ${clues.length} documentos interpretados`;
+
+    $("bar").style.width =
+      `${(solved / clues.length) * 100}%`;
+
+    document
+      .querySelector("[role=progressbar]")
+      .setAttribute("aria-valuenow", solved);
+
+    $("digits").replaceChildren();
+
+    clues.forEach((c, i) => {
+      const d = document.createElement("span");
+
+      d.className = "digit";
+      d.textContent = i < solved ? c.digit : "·";
+
+      d.setAttribute(
+        "aria-label",
+        `Cifra ${i + 1}: ${
+          i < solved ? c.digit : "pendiente"
+        }`
+      );
+
+      $("digits").appendChild(d);
+    });
+
+    $("journal").replaceChildren();
+
+    clues.forEach((c, i) => {
+      const li = document.createElement("li");
+
+      if (i < solved) {
+        const b = document.createElement("button");
+
+        b.textContent = c.name;
+        b.onclick = () => inspectClue(i);
+
+        li.appendChild(b);
+      } else {
+        li.textContent = "Documento por descubrir";
+        li.className = "pending";
+      }
+
+      $("journal").appendChild(li);
+    });
+
+    document
+      .querySelectorAll("[data-object]")
+      .forEach(b => {
+        const i = clues.findIndex(
+          c => c.object === b.dataset.object
+        );
+
+        b.classList.toggle(
+          "found",
+          i >= 0 && i < solved
+        );
+      });
+
+    $("objective").textContent = opened
+      ? "Entra y revisa las premisas y las objeciones."
+      : solved === clues.length
+        ? "Visita la puerta y ordena las cinco cifras según su hallazgo."
+        : clues[solved].location;
+
+    $("scene").classList.toggle("open", opened);
+    $("finalBanner").classList.toggle("visible", opened);
+    $("scene").classList.toggle("paused", paused);
+
+    $("pause").textContent = paused
+      ? "Continuar niebla"
+      : "Pausar niebla";
+
+    $("pause").setAttribute("aria-pressed", paused);
+
+    $("hintText").textContent = "";
+  }
+
+  function inspectClue(index) {
+    const c = clues[index];
+
+    if (index > solved) {
+      show(
+        "Todavía falta una conexión",
+        "Objeto investigado"
+      );
+
+      $("modalBody").append(
+        paragraph(
+          "Aquí hay marcas, pero falta el documento que permite interpretarlas. Puedes explorar libremente; para encadenar las pistas, sigue el indicio actual."
+        ),
+        paragraph(
+          clues[solved].location,
+          "evidence"
+        )
+      );
+
+      return;
+    }
+
+    show(
+      c.name,
+      index < solved
+        ? "Documento recuperado"
+        : "Documento por interpretar"
+    );
+
+    $("modalBody").append(
+      paragraph(c.evidence, "evidence")
+    );
+
+    if (index < solved) {
+      $("modalBody").append(
+        paragraph(c.explanation),
+        paragraph(
+          `Cifra recuperada: ${c.digit}. ${c.next}`,
+          "evidence"
+        )
+      );
+
+      return;
+    }
+
+    $("modalBody").append(
+      paragraph(c.question)
+    );
+
+    const opts = document.createElement("div");
+    opts.className = "options";
+
+    const feedback = document.createElement("div");
+    feedback.className = "feedback";
+    feedback.setAttribute("role", "status");
+
+    const next = document.createElement("button");
+    next.className = "button primary";
+    next.textContent = "Volver al entorno";
+    next.hidden = true;
+    next.onclick = () => modal.close();
+
+    c.options.forEach((option, i) => {
+      const b = document.createElement("button");
+
+      b.textContent = option;
+
+      b.onclick = () => {
+        if (i !== c.answer) {
+          feedback.className = "feedback error";
+
+          feedback.textContent =
+            "Revisa el alcance del documento: distingue lo que afirma de lo que no permite concluir.";
+
+          return;
+        }
+
+        b.classList.add("correct");
+
+        opts
+          .querySelectorAll("button")
+          .forEach(x => {
+            x.disabled = true;
+          });
+
+        solved = index + 1;
+        hintLevel = 0;
+
+        save();
+        render();
+
+        feedback.className = "feedback success";
+
+        const cifra = document.createElement("p");
+
+        cifra.className = "evidence";
+
+        cifra.innerHTML =
+          `Cifra recuperada: <strong>${c.digit}</strong>. ` +
+          "Anótala: será necesaria para abrir la puerta.";
+
+        feedback.replaceChildren(
+          paragraph(c.explanation),
+          cifra,
+          paragraph(c.next, "evidence")
+        );
+
+        next.hidden = false;
+
+        status(
+          `Recuperaste la cifra ${c.digit}. ` +
+          "La nota señala el siguiente objeto."
+        );
+      };
+
+      opts.appendChild(b);
+    });
+
+    $("modalBody").append(
+      opts,
+      feedback,
+      next
+    );
+  }
+
+  function dossier() {
+    show(
+      "El expediente del silencio",
+      "Puerta abierta · Conclusión condicionada"
+    );
+
+    $("modalBody").innerHTML = `
+      <p class="evidence">
+        La cerradura está resuelta. El argumento filosófico sigue sometido a examen.
+      </p>
+
+      <h3>Lo que has reconstruido</h3>
+
+      <ol class="case-summary">
+        <li>
+          El argumento atribuye a un Dios perfectamente amoroso apertura
+          a una relación consciente con personas capaces y no resistentes.
+        </li>
+
+        <li>
+          Una relación consciente requiere creer que el otro existe.
+        </li>
+
+        <li>
+          La existencia de personas no resistentes que carecen de esa
+          creencia plantea una tensión con esa concepción de Dios.
+        </li>
+      </ol>
+
+      <h3>Qué puede discutirse</h3>
+
+      <p>
+        Puede examinarse si el amor perfecto exige esa disponibilidad en todo
+        momento, cómo se identifica la no resistencia y si hay razones
+        suficientes para permitir un periodo de ocultamiento.
+      </p>
+
+      <p>
+        Proponer una razón posible no demuestra que sea la explicación real.
+        Del mismo modo, abrir esta puerta no demuestra que las premisas sean
+        verdaderas.
+      </p>
+
+      <h3>Distinción central</h3>
+
+      <p>
+        <strong>
+          Resolver un acertijo, reconstruir un argumento y justificar sus
+          premisas son tareas diferentes.
+        </strong>
+        El juego completa las dos primeras; la tercera requiere discusión y
+        fuentes.
+      </p>
+
+      <p class="tag">
+        Textos explicativos propios · Sin citas directas atribuidas
+      </p>
+    `;
+  }
+
+  function door() {
+    if (opened) {
+      dossier();
+      return;
+    }
+
+    show(
+      "La cerradura de la casa",
+      "Cinco cifras · Orden del hallazgo"
+    );
+
+    if (solved < clues.length) {
+      $("modalBody").append(
+        paragraph(
+          `La placa exige cinco documentos interpretados. Has recuperado ${solved}. La puerta todavía no se puede abrir.`
+        ),
+        paragraph(
+          $("objective").textContent,
+          "evidence"
+        )
+      );
+
+      return;
+    }
+
+    const form = document.createElement("form");
+
+    const label = document.createElement("label");
+
+    label.htmlFor = "lockCode";
+    label.textContent =
+      "Introduce las cifras en el orden en que las obtuviste.";
+
+    const input = document.createElement("input");
+
+    input.id = "lockCode";
+    input.type = "text";
+    input.inputMode = "numeric";
+    input.autocomplete = "off";
+    input.maxLength = clues.length;
+    input.pattern = `[0-9]{${clues.length}}`;
+    input.required = true;
+
+    const b = document.createElement("button");
+
+    b.type = "submit";
+    b.className = "button primary";
+    b.textContent = "Abrir la puerta";
+
+    const feedback = document.createElement("p");
+
+    feedback.setAttribute("role", "status");
+
+    form.append(
+      label,
+      input,
+      b,
+      feedback
+    );
+
+    form.onsubmit = e => {
+      e.preventDefault();
+
+      const codigoCorrecto = clues
+        .map(c => c.digit)
+        .join("");
+
+      const codigoIngresado = input.value.replace(/\s/g, "");
+
+      if (codigoIngresado !== codigoCorrecto) {
+        feedback.textContent =
+          "La cerradura no cede. Revisa las cifras de tu cuaderno y conserva el orden del hallazgo.";
+
+        input.select();
+
+        return;
+      }
+
+      opened = true;
+
+      save();
+      render();
+
+      modal.close();
+
+      status(
+        "La puerta se abre. El expediente final está disponible."
+      );
+
+      dossier();
+    };
+
+    $("modalBody").appendChild(form);
+  }
+
+  document
+    .querySelectorAll("[data-object]")
+    .forEach(b => {
+      b.onclick = () => {
+        const object = b.dataset.object;
+
+        if (object === "door") {
+          door();
+          return;
+        }
+
+        const index = clues.findIndex(
+          c => c.object === object
+        );
+
+        if (index >= 0) {
+          inspectClue(index);
+          return;
+        }
+
+        show(
+          object === "footprints"
+            ? "Las huellas"
+            : "El sombrero olvidado",
+          "Indicio secundario"
+        );
+
+        $("modalBody").append(
+          paragraph(
+            object === "footprints"
+              ? "Las huellas indican que alguien pasó por aquí. No permiten saber si esa persona creía, dudaba o buscaba sinceramente."
+              : "El sombrero está mojado y no tiene inscripción. Su apariencia no permite deducir las creencias de su dueño."
+          ),
+          paragraph(
+            "No todo detalle observado sostiene la conclusión que buscas. Vuelve al indicio actual.",
+            "evidence"
+          )
+        );
+      };
+    });
+
+  $("hint").onclick = () => {
+    if (solved === clues.length) {
+      $("hintText").textContent = opened
+        ? "El expediente final se abre al seleccionar la puerta."
+        : "Las cifras están en el cuaderno. Visita la puerta y consérvalas en su orden de hallazgo.";
+
+      return;
+    }
+
+    const hints = clues[solved].hints;
+
+    $("hintText").textContent =
+      hints[
+        Math.min(
+          hintLevel,
+          hints.length - 1
+        )
+      ];
+
+    hintLevel++;
+  };
+
+  $("pause").onclick = () => {
+    paused = !paused;
+
+    $("scene").classList.toggle(
+      "paused",
+      paused
+    );
+
+    $("pause").textContent = paused
+      ? "Continuar niebla"
+      : "Pausar niebla";
+
+    $("pause").setAttribute(
+      "aria-pressed",
+      paused
+    );
+  };
+
+  $("accessible").onclick = () => {
+    const active = $("scene").classList.toggle(
+      "show-objects"
+    );
+
+    $("accessible").setAttribute(
+      "aria-pressed",
+      active
+    );
+
+    $("accessible").textContent = active
+      ? "Ocultar rótulos"
+      : "Mostrar objetos";
+  };
+
+  $("reset").onclick = () => {
+    show(
+      "Reiniciar la investigación",
+      "Tu progreso actual se borrará"
+    );
+
+    $("modalBody").append(
+      paragraph(
+        "Puedes volver a empezar y recuperar de nuevo los cinco documentos."
+      )
+    );
+
+    const b = document.createElement("button");
+
+    b.className = "button primary";
+    b.textContent = "Confirmar reinicio";
+
+    b.onclick = () => {
+      solved = 0;
+      opened = false;
+      hintLevel = 0;
+
+      asignarDigitosAleatorios();
+
+      save();
+      render();
+
+      status(
+        "Nuevo caso: se han generado cinco cifras nuevas. Empieza con la carta."
+      );
+
+      modal.close();
+    };
+
+    $("modalBody").appendChild(b);
+  };
+
+  $("reopen").onclick = dossier;
+
+  $("closeModal").onclick = () => {
+    modal.close();
+  };
+
+  render();
+
+  status(
+    opened
+      ? "Caso recuperado: la puerta ya está abierta."
+      : solved
+        ? "Se recuperó tu avance en este navegador."
+        : "Observa el entorno. La carta es el primer indicio."
+  );
+})();
+</script>
+
+</body>
+</html>
